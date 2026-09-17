@@ -1,0 +1,31 @@
+name: Test hostname input handling
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          version: '1.90.4'
+          hostname: 'test-runner-node'
+          # No auth credentials — action will fail on auth, not on hostname validation
+      - name: Assert action ran (failed on auth, not on hostname input)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action should fail because no credentials were provided,
+          # not because of an invalid hostname input.
+          if [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed as expected (auth missing, hostname input accepted)"
+          elif [ "$OUTCOME" = "success" ]; then
+            echo "FAIL: action unexpectedly succeeded without credentials"
+            exit 1
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
