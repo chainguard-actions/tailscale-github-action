@@ -1,0 +1,71 @@
+# Copyright (c) Lee Briggs, Tailscale Inc, & Contributors
+# SPDX-License-Identifier: BSD-3-Clause
+
+name: 'Connect Tailscale'
+description: 'Connect your GitHub Action workflow to Tailscale'
+branding:
+  icon: 'arrow-right-circle'
+  color: 'gray-dark'
+
+inputs:
+  authkey:
+    description: 'Your Tailscale authentication key, from the admin panel.'
+    required: false
+    deprecationMessage: 'An OAuth API client https://tailscale.com/s/oauth-clients is recommended instead of an authkey'
+  oauth-client-id:
+    description: 'Your Tailscale OAuth or OIDC Federated Identity clientID.'
+    required: false
+  audience:
+    description: 'Your Tailscale OIDC Federated Identity Audience'
+    required: false
+  oauth-secret:
+    description: 'Your Tailscale OAuth Client Secret.'
+    required: false
+  tags:
+    description: 'Comma separated list of Tags to be applied to nodes. When using an OAuth client, the OAuth client must have the `auth_keys` scope and alls tags on the OAuth client must match all tags specified here.'
+    required: false
+  version:
+    description: 'Tailscale version to use. Specify `latest` to use the latest stable version, and `unstable` to use the latest development version.'
+    required: true
+    default: '1.90.4'
+  args:
+    description: 'Optional additional arguments to `tailscale up`.'
+    required: false
+    default: ''
+  tailscaled-args:
+    description: 'Optional additional arguments to `tailscaled`.'
+    required: false
+    default: ''
+  hostname:
+    description: 'Fixed hostname to use. Must be a valid DNS label (alphanumeric and dashes only, 1-63 characters, cannot start or end with a dash). If not provided, a hostname will be generated based on the runner name.'
+    required: false
+    default: ''
+  timeout:
+    description: 'Timeout for `tailscale up`.'
+    required: false
+    default: '2m'
+  retry:
+    description: 'Number of retries for `tailscale up`.'
+    required: false
+    default: '5'
+  use-cache:
+    description: 'Enable caching of Tailscale binaries to speed up subsequent runs.'
+    required: false
+    default: 'true'
+  statedir:
+    description: 'Directory to store Tailscale state. If empty, uses in-memory storage.'
+    required: false
+    default: ''
+  sha256sum:
+    description: 'Expected SHA256 checksum of the tarball.'
+    required: false
+    default: ''
+  ping:
+    description: 'Comma separated list of hosts (Tailscale IP addresses or machine names if MagicDNS is enabled on the tailnet) to `tailscale ping` for connectivity verification after `tailscale up` completes.'
+    required: false
+    default: ''
+    
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
+  post: 'dist/logout/index.js'
